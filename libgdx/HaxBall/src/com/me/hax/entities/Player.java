@@ -30,7 +30,7 @@ public class Player extends InputAdapter implements ContactListener{
 	private BodyDef playerBodyDef;
 	private FixtureDef playerFixtureDef;
 	private Shape playerShape;
-	private float maxSpeed = 2, speed = .2f;
+	private float maxSpeed = 1.5f, speed = .1f;
 	private ShapeRenderer renderer;
 	private float size;
 	private boolean contactFlag = false;
@@ -72,7 +72,7 @@ public class Player extends InputAdapter implements ContactListener{
 		playerFixtureDef.shape = playerShape;
 
 		playerFixtureDef.restitution = .5f;
-		playerFixtureDef.friction = .5f;
+		playerFixtureDef.friction = 0f;
 		playerFixtureDef.density = 1.5f;
 		playerFixtureDef.isSensor = false;
 		
@@ -234,28 +234,50 @@ public class Player extends InputAdapter implements ContactListener{
 
 	@Override
 	public void preSolve(Contact contact, Manifold oldManifold) {
+		if(contactFlag){
+			Body body1 =  contact.getFixtureA().getBody();
+			Body body2 = contact.getFixtureB().getBody();
+			
+			if((body1 == playerBody || body2 == playerBody) && ( (body2.getUserData() != null && body2.getUserData().equals( "ball")) || (body1.getUserData() != null && body1.getUserData().equals( "ball" )))) {
+				/*
+				 * body1 = pelota
+				 * body2 = jugador.
+				 */
+				if(body1 != playerBody){
+					body1 =  contact.getFixtureA().getBody();	
+					body2 = contact.getFixtureB().getBody();	
+				}
+				
+					float vel_x = 0f;
+					float vel_y = 0f;
+					
+					if(body1.getPosition().x >body2.getPosition().x){
+						 vel_x =  5;
+					}else{
+						 vel_x =  -5;
+					}
+					
+					if(body1.getPosition().y >body2.getPosition().y){
+						 vel_y =  -5;
+					}else{
+						 vel_y =  5;
+					}
+			
+					body2.getFixtureList().get(0).setDensity(100);
+                    body1.applyLinearImpulse(new Vector2(vel_x, vel_y) ,oldManifold.getLocalPoint(),true);
+                    body1.setAngularVelocity(0f);
+				//body1.getFixtureList().get(0).setRestitution(1000);
+				// bodies[0]->ApplyForce( b2Vec2(0,50), bodies[0]->GetWorldCenter() );
+				//body1.applyForce(new Vector2( 1000 ,0), body1.getWorldCenter(), true);
+				//body1.setLinearVelocity(body1.getLinearVelocity().x * 2 , body1.getLinearVelocity().y * 2);
 		
+			}
+		}	
 	}
 	
 	@Override
 	public void postSolve(Contact contact, ContactImpulse impulse) {
-		if(contactFlag){
-			Body body1 =  contact.getFixtureA().getBody();
-			Body body2 = contact.getFixtureB().getBody();
-			if((body1 == playerBody || body2 == playerBody) && ( (body2.getUserData() != null && body2.getUserData().equals( "ball")) || (body1.getUserData() != null && body1.getUserData().equals( "ball" )))) {
-				/*
-				 * body1 = jugador
-				 * body2 = pelota.
-				 */
-				if(body1 != playerBody){
-					body2 = contact.getFixtureB().getBody();
-					body1 =  contact.getFixtureA().getBody();
-					
-					body1.setLinearVelocity(body1.getLinearVelocity().x * 2 , body1.getLinearVelocity().y * 2);
-					//body1.setLinearVelocity(oldManifold.getLocalPoint().x, oldManifold.getLocalPoint().y);
-				}
-			}
-		}	
+		
 		
 	}
 	

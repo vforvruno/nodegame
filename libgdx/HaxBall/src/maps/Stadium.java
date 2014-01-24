@@ -1,5 +1,6 @@
 package maps;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
@@ -82,9 +83,9 @@ public class Stadium implements Screen {
 			public boolean keyDown(int keycode) {
 				switch (keycode) {
 				case Keys.ESCAPE:
-					// Game g = (Game) Gdx.app.getApplicationListener();
-					// g.setScreen(new SelectGame());
-					System.exit(0);
+					 Game g = (Game) Gdx.app.getApplicationListener();
+					 g.setScreen(new Stadium());
+					
 					break;
 				}
 				return false;

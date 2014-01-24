@@ -16,7 +16,8 @@ public class Ball{
 	private BodyDef playerBodyDef;
 	private FixtureDef playerFixtureDef;
 	private Shape playerShape;
-
+	private float maxSpeed = 1.8f;
+	private float maxKickVel = 1.5f;
 
 	public Ball(Vector2 position, float size, Shape shape,
 			World world) {
@@ -39,7 +40,7 @@ public class Ball{
 		playerFixtureDef.shape = playerShape;
 
 		playerFixtureDef.restitution = .5f;
-		playerFixtureDef.friction = .5f;
+		playerFixtureDef.friction = 0f;
 		playerFixtureDef.density = 5f;
 		playerFixtureDef.isSensor = false;
 		
@@ -51,6 +52,26 @@ public class Ball{
 		playerBody.createFixture(playerFixtureDef);
 		
 		playerBody.setUserData("ball");
+	}
+
+
+	public float getMaxSpeed() {
+		return maxSpeed;
+	}
+
+
+	public void setMaxSpeed(float maxSpeed) {
+		this.maxSpeed = maxSpeed;
+	}
+
+
+	public float getMaxKickVel() {
+		return maxKickVel;
+	}
+
+
+	public void setMaxKickVel(float maxKickVel) {
+		this.maxKickVel = maxKickVel;
 	}
 
 
