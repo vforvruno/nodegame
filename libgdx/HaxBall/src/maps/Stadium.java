@@ -38,7 +38,7 @@ public class Stadium implements Screen {
 	private float speed = 5000;
 	private Body body;
 	private Vector2 movement = new Vector2();
-	private Player player1;
+	private Player player1, player2;
 	private SpriteBatch batch;
 
 	@Override
@@ -73,7 +73,7 @@ public class Stadium implements Screen {
 		
 		Ball ball = new Ball(new Vector2(0,0), .2f, new CircleShape(), world);
 		player1 = new Player(2, new Vector2(-2, 0), .3f, new CircleShape(),	world, camera.combined);
-
+		
 		world.setContactListener(player1); 
 		
 		Gdx.input.setInputProcessor(new InputMultiplexer(
@@ -166,10 +166,8 @@ public class Stadium implements Screen {
 		float distance_1 = endPoint - startPoint;	
 		int aux = 1;
 		
-		for(float f = .0f; f <= distance_1; f += 0.12f ){
-			 
+		for(float f = .0f; f <= distance_1; f += 0.12f ){	 
 			robeBody.position.set(new Vector2(startPoint+f, Brobe2a_1.getPosition().y));
-			
 			robeShape.setRadius(.03f);
 			robeBody.type = BodyType.DynamicBody;
 			Body auxNet_A = world.createBody(robeBody);
@@ -180,15 +178,12 @@ public class Stadium implements Screen {
 		
 
 		for(int x = 1; x <= net.size; x++){
-			
 			if( x + 1 < net.size ){ 
 				DistanceJointDef n = new DistanceJointDef();
 				Body bodyA = net.get( x );
 				Body bodyB = net.get( x + 1 );
 				n.bodyA = bodyA;
 				n.bodyB = bodyB;
-				
-				
 				n.length = .12f;
 				n.collideConnected = false;
 				world.createJoint(n);
@@ -216,7 +211,7 @@ public class Stadium implements Screen {
 						new Vector2(6.1f, .8f), new Vector2(6f, .8f), 
 						}
 				);
-
+		
 		// Fixture
 		fixtureDef.shape = groundShape1;
 		fixtureDef.friction = 1.5f;
@@ -225,7 +220,25 @@ public class Stadium implements Screen {
 		Body ground1 = world.createBody(bodyDef);
 		ground1.createFixture(fixtureDef);
 		
+		ChainShape arco1 = new ChainShape();
+		arco1.createChain(
+				new Vector2[] {
+						new Vector2(6, .8f), new Vector2(7, .8f),
+						new Vector2(7, -.8f), new Vector2(6, -.8f)
+				});
 		
+		fixtureDef.shape = arco1;
+		world.createBody(bodyDef).createFixture(fixtureDef);
+		
+		ChainShape arco2 = new ChainShape();
+		arco2.createChain(
+				new Vector2[] {
+						new Vector2(-6, -.8f), new Vector2(-7, -.8f),
+						new Vector2(-7, .8f), new Vector2(-6, .8f)
+				});
+		
+		fixtureDef.shape = arco2;
+		world.createBody(bodyDef).createFixture(fixtureDef);
 
 		body = world.createBody(bodyDef);
 		groundShape.dispose();

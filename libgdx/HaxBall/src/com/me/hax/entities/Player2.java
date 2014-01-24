@@ -24,8 +24,9 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.me.hax.entities.Player.Controls;
 
-public class Player extends InputAdapter implements ContactListener{
+public class Player2 extends InputAdapter implements SuperPoder{
 
 	private Matrix4 camera;
 	private Body playerBody;
@@ -51,7 +52,7 @@ public class Player extends InputAdapter implements ContactListener{
 		keys.put(Controls.S, false);
 	}
 
-	public Player(float speed, Vector2 position, float size, Shape shape,
+	public Player2(float speed, Vector2 position, float size, Shape shape,
 			World world, Matrix4 camera) {
 
 		if (shape == null) {
@@ -109,19 +110,19 @@ public class Player extends InputAdapter implements ContactListener{
 	@Override
 	public boolean keyDown(int keycode) {
 		switch (keycode) {
-		case Keys.UP:
+		case Keys.W:
 			setPressKey(Controls.U);
 			return true;
-		case Keys.DOWN:
+		case Keys.S:
 			setPressKey(Controls.D);
 			return true;
-		case Keys.LEFT:
+		case Keys.A:
 			setPressKey(Controls.L);
 			return true;
-		case Keys.RIGHT:
+		case Keys.D:
 			setPressKey(Controls.R);
 			return true;
-		case Keys.SPACE:
+		case Keys.R:
 			setPressKey(Controls.S);
 			return true;
 		}
@@ -131,19 +132,19 @@ public class Player extends InputAdapter implements ContactListener{
 	@Override
 	public boolean keyUp(int keycode) {
 		switch (keycode) {
-		case Keys.UP:
+		case Keys.W:
 			setPressRelease(Controls.U);
 			return true;
-		case Keys.DOWN:
+		case Keys.S:
 			setPressRelease(Controls.D);
 			return true;
-		case Keys.LEFT:
+		case Keys.A:
 			setPressRelease(Controls.L);
 			return true;
-		case Keys.RIGHT:
+		case Keys.D:
 			setPressRelease(Controls.R);
 			return true;
-		case Keys.SPACE:
+		case Keys.R:
 			setPressRelease(Controls.S);
 			return true;
 		}
@@ -232,88 +233,11 @@ public class Player extends InputAdapter implements ContactListener{
 		}
 	}
 
-	@Override
-	public void preSolve(Contact contact, Manifold oldManifold) {
-	}
 	
 	@Override
-	public void postSolve(Contact contact, ContactImpulse impulse) {
-		
-		
+	public boolean getSuperPoder(){
+		return keys.get(Controls.S);
 	}
-	
-	@Override
-	public void endContact(Contact contact) {
-	
-	}
-	
-	@Override
-	public void beginContact(Contact contact) {
-		if(contactFlag){
-			Body ball =  contact.getFixtureA().getBody();
-			Body player = contact.getFixtureB().getBody();
-			
-			if((ball == playerBody || player == playerBody) && ( (player.getUserData() != null && player.getUserData().equals( "ball")) || (ball.getUserData() != null && ball.getUserData().equals( "ball" )))) {
-				/*
-				 * body1 = pelota
-				 * body2 = jugador.
-				 */
-				if(ball != playerBody){
-					ball =  contact.getFixtureA().getBody();	
-					player = contact.getFixtureB().getBody();	
-				}
-				
-				//ball.setLinearVelocity(ball.getLinearVelocity().x==0?0.0001f:ball.getLinearVelocity().x, ball.getLinearVelocity().y==0?0.0001f:ball.getLinearVelocity().y);
-				float x = ball.getPosition().x - player.getPosition().x; 
-				float y = ball.getPosition().y - player.getPosition().y;
-				
-				
-				float absx = Math.abs(x);
-				float absy = Math.abs(y);
-				float sigx = Math.signum(x);
-				float sigy = Math.signum(y);
-				
-				if ( absx > absy )
-				{
-					float newy = (absy*maxSpeedBall) / absx;
-					ball.setLinearVelocity( maxSpeedBall*sigx, newy*sigy);	
-				}
-				else
-				{
-					float newx = (absx*maxSpeedBall) / absy;
-					ball.setLinearVelocity( newx*sigx, maxSpeedBall*sigy);	
-				}
-				
-				/*
-				float vel_x = body1.getLinearVelocity().x;
-				float vel_y = body1.getLinearVelocity().y;
-				float k= vel_x/vel_y;
-				
-				float aux_x = (maxSpeedBall*maxSpeedBall)/(1+(1/(k*k)));
-				float aux_y = ((maxSpeedBall*maxSpeedBall)/(1+k*k));
-				*/
-				System.out.println("--------------------------------------");
-				/*System.out.println("x: " + (maxSpeedBall*maxSpeedBall)/(1+(1/(k*k))));
-				System.out.println("y: " + ((maxSpeedBall*maxSpeedBall)/(1+k*k)));
-				System.out.println("--------------------------------------");
-				body1.resetMassData();
-				body1.setLinearVelocity( (java.lang.Float.isNaN(aux_x) ? 0 : aux_x) ,(java.lang.Float.isNaN(aux_y) ? 0 : aux_y) );
-				
-				*/
-				//body1.setLinearVelocity(body1.getLinearVelocity().x * .8f, body1.getLinearVelocity().y*.8f);
-
-				//body1.getFixtureList().get(0).setRestitution(1000);
-				// bodies[0]->ApplyForce( b2Vec2(0,50), bodies[0]->GetWorldCenter() );
-				//body1.applyForce(new Vector2( 1000 ,0), body1.getWorldCenter(), true);
-				//body1.setLinearVelocity(body1.getLinearVelocity().x * 2 , body1.getLinearVelocity().y * 2);
-		
-			}
-		}	
-	
-	}
-
-
-	
 
 	
 
