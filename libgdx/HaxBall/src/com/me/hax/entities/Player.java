@@ -214,16 +214,16 @@ public class Player extends InputAdapter implements ContactListener{
 					colorFlag = true;
 				}
 				playerBody.getFixtureList().get(0).getShape().setRadius(size + .051f);
-				playerBody.getFixtureList().get(0).setDensity(100);
-				playerBody.getFixtureList().get(0).setRestitution(1.5f);
+				//playerBody.getFixtureList().get(0).setDensity(100);
+				//playerBody.getFixtureList().get(0).setRestitution(1.5f);
 				contactFlag = true;
 				
 				
 				
 			}else if(key == key.S && !value){
 				playerBody.getFixtureList().get(0).getShape().setRadius(size);
-				playerBody.getFixtureList().get(0).setDensity(1.5f);
-				playerBody.getFixtureList().get(0).setRestitution(.5f);
+				//playerBody.getFixtureList().get(0).setDensity(1.5f);
+				//playerBody.getFixtureList().get(0).setRestitution(.5f);
 				colorFlag = false;
 				contactFlag = false;
 			}
@@ -235,12 +235,27 @@ public class Player extends InputAdapter implements ContactListener{
 	@Override
 	public void preSolve(Contact contact, Manifold oldManifold) {
 		
-		
 	}
 	
 	@Override
 	public void postSolve(Contact contact, ContactImpulse impulse) {
-		// TODO Auto-generated method stub
+		if(contactFlag){
+			Body body1 =  contact.getFixtureA().getBody();
+			Body body2 = contact.getFixtureB().getBody();
+			if((body1 == playerBody || body2 == playerBody) && ( (body2.getUserData() != null && body2.getUserData().equals( "ball")) || (body1.getUserData() != null && body1.getUserData().equals( "ball" )))) {
+				/*
+				 * body1 = jugador
+				 * body2 = pelota.
+				 */
+				if(body1 != playerBody){
+					body2 = contact.getFixtureB().getBody();
+					body1 =  contact.getFixtureA().getBody();
+					
+					body1.setLinearVelocity(body1.getLinearVelocity().x * 2 , body1.getLinearVelocity().y * 2);
+					//body1.setLinearVelocity(oldManifold.getLocalPoint().x, oldManifold.getLocalPoint().y);
+				}
+			}
+		}	
 		
 	}
 	
@@ -253,15 +268,7 @@ public class Player extends InputAdapter implements ContactListener{
 	@Override
 	public void beginContact(Contact contact) {
 		// TODO Auto-generated method stub
-
-		Body body1 =  contact.getFixtureA().getBody();
-		Body body2 = contact.getFixtureB().getBody();
 		
-		
-		if((body1 == playerBody || body2 == playerBody) && ( (body2.getUserData() != null && body2.getUserData().equals("soy pelota")) || (body1.getUserData() != null && body1.getUserData().equals("soy pelota"))) && contactFlag ) {
-			body2.applyForce(body1.getLinearVelocity().x + 50, body1.getLinearVelocity().y + 50, 0, 0, true);
-			System.out.println("SOY PELITA!!!");
-		}
 	}
 
 

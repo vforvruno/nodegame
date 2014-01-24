@@ -50,7 +50,7 @@ public class Ball{
 
 		playerBody.createFixture(playerFixtureDef);
 		
-		playerBody.setUserData("soy pelota");
+		playerBody.setUserData("ball");
 	}
 
 
