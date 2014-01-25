@@ -36,6 +36,7 @@ public class Player extends InputAdapter implements ContactListener{
 	private ShapeRenderer renderer;
 	private float size;
 	private boolean contactFlag = false;
+	private Vector2 position;
 	
 	enum Controls {
 		U, D, L, R, S 
@@ -68,7 +69,7 @@ public class Player extends InputAdapter implements ContactListener{
 
 		playerBodyDef.type = BodyType.DynamicBody;
 		playerBodyDef.position.set(position.x, position.y);
-
+		this.position = position;
 		((CircleShape) playerShape).setRadius(size);
 
 		playerFixtureDef.shape = playerShape;
@@ -263,7 +264,6 @@ public class Player extends InputAdapter implements ContactListener{
 					player = contact.getFixtureB().getBody();	
 				}
 				
-				//ball.setLinearVelocity(ball.getLinearVelocity().x==0?0.0001f:ball.getLinearVelocity().x, ball.getLinearVelocity().y==0?0.0001f:ball.getLinearVelocity().y);
 				float x = ball.getPosition().x - player.getPosition().x; 
 				float y = ball.getPosition().y - player.getPosition().y;
 				
@@ -282,42 +282,18 @@ public class Player extends InputAdapter implements ContactListener{
 				{
 					float newx = (absx*maxSpeedBall) / absy;
 					ball.setLinearVelocity( newx*sigx, maxSpeedBall*sigy);	
-				}
-				
-				/*
-				float vel_x = body1.getLinearVelocity().x;
-				float vel_y = body1.getLinearVelocity().y;
-				float k= vel_x/vel_y;
-				
-				float aux_x = (maxSpeedBall*maxSpeedBall)/(1+(1/(k*k)));
-				float aux_y = ((maxSpeedBall*maxSpeedBall)/(1+k*k));
-				*/
-				System.out.println("--------------------------------------");
-				/*System.out.println("x: " + (maxSpeedBall*maxSpeedBall)/(1+(1/(k*k))));
-				System.out.println("y: " + ((maxSpeedBall*maxSpeedBall)/(1+k*k)));
-				System.out.println("--------------------------------------");
-				body1.resetMassData();
-				body1.setLinearVelocity( (java.lang.Float.isNaN(aux_x) ? 0 : aux_x) ,(java.lang.Float.isNaN(aux_y) ? 0 : aux_y) );
-				
-				*/
-				//body1.setLinearVelocity(body1.getLinearVelocity().x * .8f, body1.getLinearVelocity().y*.8f);
-
-				//body1.getFixtureList().get(0).setRestitution(1000);
-				// bodies[0]->ApplyForce( b2Vec2(0,50), bodies[0]->GetWorldCenter() );
-				//body1.applyForce(new Vector2( 1000 ,0), body1.getWorldCenter(), true);
-				//body1.setLinearVelocity(body1.getLinearVelocity().x * 2 , body1.getLinearVelocity().y * 2);
-		
+				}		
 			}
 		}	
-	
 	}
 
+	public Vector2 getPosition() {
+		return position;
+	}
 
+	public void setPosition(Vector2 position) {
+		playerBodyDef.position.set(position);
+	}
 	
-
 	
-
-	
-	
-
 }
