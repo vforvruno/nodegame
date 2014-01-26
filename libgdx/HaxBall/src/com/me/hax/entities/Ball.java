@@ -12,46 +12,48 @@ import com.badlogic.gdx.physics.box2d.World;
 public class Ball{
 
 	
-	private Body playerBody;
-	private BodyDef playerBodyDef;
-	private FixtureDef playerFixtureDef;
-	private Shape playerShape;
-	private float maxSpeed = 1.8f;
-	private float maxKickVel = 1.5f;
+	private Body ballBody;
+	private BodyDef ballBodyDef;
+	private FixtureDef ballFixtureDef;
+	private Shape ballShape;
+	private Vector2 position;
+	public static float maxSpeed = 5f;
+	public static float maxKickVel =3f;
 
 	public Ball(Vector2 position, float size, Shape shape,
 			World world) {
 
 		if (shape == null) {
-			playerShape = new CircleShape();
+			ballShape = new CircleShape();
 
 		} else {
-			playerShape = shape;
+			ballShape = shape;
 		}
+		
+		this.position = position;
+		ballBodyDef = new BodyDef();
+		ballFixtureDef = new FixtureDef();
 
-		playerBodyDef = new BodyDef();
-		playerFixtureDef = new FixtureDef();
+		ballBodyDef.type = BodyType.DynamicBody;
+		ballBodyDef.position.set(position.x, position.y);
 
-		playerBodyDef.type = BodyType.DynamicBody;
-		playerBodyDef.position.set(position.x, position.y);
+		((CircleShape) ballShape).setRadius(size);
 
-		((CircleShape) playerShape).setRadius(size);
+		ballFixtureDef.shape = ballShape;
 
-		playerFixtureDef.shape = playerShape;
-
-		playerFixtureDef.restitution = .5f;
-		playerFixtureDef.friction = 0f;
-		playerFixtureDef.density = 5f;
-		playerFixtureDef.isSensor = false;
+		ballFixtureDef.restitution = .5f;
+		ballFixtureDef.friction = 0f;
+		ballFixtureDef.density = 5f;
+		ballFixtureDef.isSensor = false;
 		
 
 	
 		
-		playerBody = world.createBody(playerBodyDef);
+		ballBody = world.createBody(ballBodyDef);
 
-		playerBody.createFixture(playerFixtureDef);
+		ballBody.createFixture(ballFixtureDef);
 		
-		playerBody.setUserData("ball");
+		ballBody.setUserData("ball");
 	}
 
 
@@ -61,7 +63,7 @@ public class Ball{
 
 
 	public void setMaxSpeed(float maxSpeed) {
-		this.maxSpeed = maxSpeed;
+		Ball.maxSpeed = maxSpeed;
 	}
 
 
@@ -71,7 +73,27 @@ public class Ball{
 
 
 	public void setMaxKickVel(float maxKickVel) {
-		this.maxKickVel = maxKickVel;
+		Ball.maxKickVel = maxKickVel;
+	}
+
+
+	public Vector2 getPosition() {
+		return position;
+	}
+
+
+	public void setPosition(Vector2 position) {
+		this.position = position;
+	}
+
+
+	public Body getBallBody() {
+		return ballBody;
+	}
+
+
+	public void setBallBody(Body ballBody) {
+		this.ballBody = ballBody;
 	}
 
 

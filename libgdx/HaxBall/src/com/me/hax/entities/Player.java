@@ -25,7 +25,7 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 
-public class Player extends InputAdapter implements ContactListener{
+public class Player extends InputAdapter{
 
 	private Matrix4 camera;
 	private Body playerBody;
@@ -38,7 +38,7 @@ public class Player extends InputAdapter implements ContactListener{
 	private boolean contactFlag = false;
 	private Vector2 position;
 	
-	enum Controls {
+	public enum Controls {
 		U, D, L, R, S 
 	}
 
@@ -75,7 +75,7 @@ public class Player extends InputAdapter implements ContactListener{
 		playerFixtureDef.shape = playerShape;
 
 		playerFixtureDef.restitution = .5f;
-		playerFixtureDef.friction = 0f;
+		playerFixtureDef.friction = 1f;
 		playerFixtureDef.density = 5f;
 		playerFixtureDef.isSensor = false;
 		
@@ -86,6 +86,8 @@ public class Player extends InputAdapter implements ContactListener{
 
 		playerBody.createFixture(playerFixtureDef);
 
+		playerBody.setUserData("player");
+		
 		
 		renderer = new ShapeRenderer();
 		this.camera = camera;
@@ -93,6 +95,10 @@ public class Player extends InputAdapter implements ContactListener{
 		
 		
 		
+	}
+	
+	public static boolean getAction(Controls s){
+		return keys.get(s);
 	}
 
 	public Body getPlayer() {
@@ -124,6 +130,9 @@ public class Player extends InputAdapter implements ContactListener{
 			return true;
 		case Keys.SPACE:
 			setPressKey(Controls.S);
+			return true;
+		case Keys.ESCAPE:
+			playerBodyDef.position.set(0, 0);
 			return true;
 		}
 		return false;
@@ -211,12 +220,12 @@ public class Player extends InputAdapter implements ContactListener{
 				if(!colorFlag){
 					renderer.setProjectionMatrix(camera);
 					renderer.begin(ShapeType.Filled);
-					renderer.setColor(Color.ORANGE);
-					renderer.circle(playerBody.getPosition().x ,playerBody.getPosition().y, playerBody.getFixtureList().get(0).getShape().getRadius() - .05f, 20);;
+					renderer.setColor(Color.LIGHT_GRAY);
+					renderer.circle(playerBody.getPosition().x ,playerBody.getPosition().y, playerBody.getFixtureList().get(0).getShape().getRadius() - .05f, 20);
 					renderer.end();
 					colorFlag = true;
 				}
-				playerBody.getFixtureList().get(0).getShape().setRadius(size + .051f);
+				//playerBody.getFixtureList().get(0).getShape().setRadius(size + .051f);
 				//playerBody.getFixtureList().get(0).setDensity(100);
 				//playerBody.getFixtureList().get(0).setRestitution(1.5f);
 				contactFlag = true;
@@ -232,59 +241,13 @@ public class Player extends InputAdapter implements ContactListener{
 			
 		}
 	}
-
-	@Override
-	public void preSolve(Contact contact, Manifold oldManifold) {
-	}
 	
-	@Override
-	public void postSolve(Contact contact, ContactImpulse impulse) {
-		
-		
-	}
-	
-	@Override
-	public void endContact(Contact contact) {
-	
-	}
-	
-	@Override
-	public void beginContact(Contact contact) {
-		if(contactFlag){
-			Body ball =  contact.getFixtureA().getBody();
-			Body player = contact.getFixtureB().getBody();
-			
-			if((ball == playerBody || player == playerBody) && ( (player.getUserData() != null && player.getUserData().equals( "ball")) || (ball.getUserData() != null && ball.getUserData().equals( "ball" )))) {
-				/*
-				 * body1 = pelota
-				 * body2 = jugador.
-				 */
-				if(ball != playerBody){
-					ball =  contact.getFixtureA().getBody();	
-					player = contact.getFixtureB().getBody();	
-				}
-				
-				float x = ball.getPosition().x - player.getPosition().x; 
-				float y = ball.getPosition().y - player.getPosition().y;
-				
-				
-				float absx = Math.abs(x);
-				float absy = Math.abs(y);
-				float sigx = Math.signum(x);
-				float sigy = Math.signum(y);
-				
-				if ( absx > absy )
-				{
-					float newy = (absy*maxSpeedBall) / absx;
-					ball.setLinearVelocity( maxSpeedBall*sigx, newy*sigy);	
-				}
-				else
-				{
-					float newx = (absx*maxSpeedBall) / absy;
-					ball.setLinearVelocity( newx*sigx, maxSpeedBall*sigy);	
-				}		
-			}
-		}	
+	public void paintPlayer(){
+		renderer.setProjectionMatrix(camera);
+		renderer.begin(ShapeType.Filled);
+		renderer.setColor(Color.RED);
+		renderer.circle(playerBody.getPosition().x ,playerBody.getPosition().y, playerBody.getFixtureList().get(0).getShape().getRadius(), 20);
+		renderer.end();
 	}
 
 	public Vector2 getPosition() {
@@ -294,6 +257,23 @@ public class Player extends InputAdapter implements ContactListener{
 	public void setPosition(Vector2 position) {
 		playerBodyDef.position.set(position);
 	}
+
+	public Body getPlayerBody() {
+		return playerBody;
+	}
+
+	public void setPlayerBody(Body playerBody) {
+		this.playerBody = playerBody;
 	
+	}
+
+	public BodyDef getPlayerBodyDef() {
+		return playerBodyDef;
+	}
+
+	public void setPlayerBodyDef(BodyDef playerBodyDef) {
+		this.playerBodyDef = playerBodyDef;
+	}
 	
+
 }

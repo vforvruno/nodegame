@@ -4,9 +4,16 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -17,8 +24,9 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
-import com.badlogic.gdx.physics.box2d.joints.RopeJointDef;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.me.hax.BallContactListener;
 import com.me.hax.entities.Ball;
 import com.me.hax.entities.Player;
 
@@ -27,25 +35,81 @@ public class Stadium implements Screen {
 	private World world;
 	private Box2DDebugRenderer debugRender;
 	private OrthographicCamera camera;
-	private final float TIMESTEP = 1 / 60f;
 	private final int VELOCITYITERATIONS = 8;
 	private final int POSITIONITERATIONS = 3;
-	private float speed = 5000;
-	private Body body;
-	private Vector2 movement = new Vector2();
-	private Player player1, player2;
-	private SpriteBatch batch;
-
+	private Player player1;
+	private ShapeRenderer renderer;
+	private TextureRegion region;
+	private Ball ball;
+	SpriteBatch batch = new SpriteBatch();
+	private Texture texture;
+	private Array<Body> bodyForPainting = new Array();
+	
 	@Override
 	public void render(float delta) {
+		
+		
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		player1.movePlayer();
+		
 
 		world.step(Gdx.graphics.getDeltaTime(), VELOCITYITERATIONS, POSITIONITERATIONS);
+		
 		debugRender.render(world, camera.combined);
 		
+	
+
+
+		
+		//soccer image field
+		batch.begin();
+		batch.draw(region, 90, 35, 1450, 730);
+		batch.end();
+		
+		for(Body b: bodyForPainting){
+			renderer.begin(ShapeType.Filled);
+			renderer.setColor(Color.WHITE);
+			renderer.circle(b.getPosition().x, b.getPosition().y, b.getFixtureList().get(0).getShape().getRadius(), 10);
+			renderer.end();
+		}
+		
+		//Paint soccer field
+		renderer.setProjectionMatrix(camera.combined);
+		renderer.begin(ShapeType.Filled);
+		renderer.setColor(Color.WHITE);
+		renderer.rect(-6.01f , 3.5f, 12,.02f);
+		renderer.rect(6f , -3.53f, -12,.02f);
+		renderer.rect(0,-3.5f,.02f,7f);
+		renderer.rect(6f,-3.5f,.02f,7f);
+		renderer.rect(-6.03f,-3.5f,.02f,7f);
+		
+		renderer.rect(-6.03f,-1,1,.02f);
+		renderer.rect(-6.03f,1,1,.02f);
+		renderer.rect(-5.05f,-1f,.02f,2f);
+		
+		renderer.rect(5.03f,1,1,.02f);
+		renderer.rect(5.03f,-1,1,.02f);
+		renderer.rect(5.03f,-1f,.02f,2f);
+		
+		renderer.circle(0, 0, .1f, 10);
+		renderer.end();
+		
+		renderer.begin(ShapeType.Line);
+		renderer.setColor(Color.WHITE);
+		renderer.circle(0, 0, .7f, 20);
+		renderer.end();
+		
+	
+		renderer.begin(ShapeType.Filled);
+		renderer.setColor(Color.GREEN);
+		renderer.circle(ball.getBallBody().getPosition().x, ball.getBallBody().getPosition().y, .2f, 20);
+		renderer.end();
+		
+	
+		
+		player1.paintPlayer();
+		player1.movePlayer();
 	}
 
 	@Override
@@ -57,19 +121,26 @@ public class Stadium implements Screen {
 
 	@Override
 	public void show() {
-
-		camera = new OrthographicCamera(Gdx.graphics.getWidth(),
-				Gdx.graphics.getHeight());
+		Texture.setEnforcePotImages(false);
 		
+		camera = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+	
+		renderer = new ShapeRenderer();
+
+		
+		texture = new Texture(Gdx.files.internal("data/soccer.png"));
+		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+
+		region = new TextureRegion(texture, 0, 0, texture.getWidth(), texture.getHeight());
 		world = new World(new Vector2(0, 0), true);
 		
 	
 		
 		
-		Ball ball = new Ball(new Vector2(0,0), .2f, new CircleShape(), world);
+		ball = new Ball(new Vector2(0,0), .2f, new CircleShape(), world);
 		player1 = new Player(2, new Vector2(-2, 0), .3f, new CircleShape(),	world, camera.combined);
 		
-		world.setContactListener(player1); 
+		world.setContactListener(new BallContactListener()); 
 		
 		Gdx.input.setInputProcessor(new InputMultiplexer(
 		player1,
@@ -78,7 +149,7 @@ public class Stadium implements Screen {
 			public boolean keyDown(int keycode) {
 				switch (keycode) {
 				case Keys.ESCAPE:
-					player1.setPosition(new Vector2(-2,0));
+					//player1.getPlayerBodyDef().position.set(new Vector2(0,0));
 					break;
 				}
 				return false;
@@ -122,16 +193,13 @@ public class Stadium implements Screen {
 		fixtureDef.friction = 1.5f;
 		fixtureDef.restitution = 0;
 
-		
 		Body ground = world.createBody(bodyDef);
 		ground.createFixture(fixtureDef);
 		
 		
+	
 		
 
-			
-		body = world.createBody(bodyDef);
-		groundShape.dispose();
 
 		// //
 
@@ -163,9 +231,7 @@ public class Stadium implements Screen {
 		ground1.createFixture(fixtureDef);
 		
 		
-	
-		body = world.createBody(bodyDef);
-		groundShape.dispose();
+
 
 	
 		
@@ -181,25 +247,28 @@ public class Stadium implements Screen {
 		robeFixture.shape = robeShape;
 		
 		//Definicion de arcos a la derecha. (4 en total)
-		
 		//-------Palo derecha 1°---------
 		robeBody.position.set(new Vector2(6.005f,1f));
 		Body palo_derecha1 = world.createBody(robeBody);
+		bodyForPainting.add(palo_derecha1); //lo agregamos para poder pintarlo despues.
 		palo_derecha1.createFixture(robeFixture);
 		
 		//-------Palo derecha 2° (Atras del palo 1)----
 		robeBody.position.set(new Vector2(7f,.8f));
 		Body palo_derecha_atras1 = world.createBody(robeBody);
+		bodyForPainting.add(palo_derecha_atras1);
 		palo_derecha_atras1.createFixture(robeFixture);
 		
 		//-------Palo derecha 3°---------
 		robeBody.position.set(new Vector2(6.005f,-1f));
 		Body palo_derecha2 = world.createBody(robeBody);
+		bodyForPainting.add(palo_derecha2);
 		palo_derecha2.createFixture(robeFixture);
 		
 		//-------Palo derecha 4° (Atras del palo 3)----
 		robeBody.position.set(new Vector2(7f,-.8f));
 		Body palo_derecha_atras2 = world.createBody(robeBody);
+		bodyForPainting.add(palo_derecha_atras2);
 		palo_derecha_atras2.createFixture(robeFixture);
 		
 		Body aasd = world.createBody(robeBody);
@@ -216,21 +285,25 @@ public class Stadium implements Screen {
 		//-------Palo derecha 1°---------
 		robeBody.position.set(new Vector2(-6.005f,1f));
 		Body palo_izq1 = world.createBody(robeBody);
+		bodyForPainting.add(palo_izq1);
 		palo_izq1.createFixture(robeFixture);
 		
 		//-------Palo derecha 2° (Atras del palo 1)----
 		robeBody.position.set(new Vector2(-7f,.8f));
 		Body palo_izq_atras1 = world.createBody(robeBody);
+		bodyForPainting.add(palo_izq_atras1);
 		palo_izq_atras1.createFixture(robeFixture);
 		
 		//-------Palo derecha 3°---------
 		robeBody.position.set(new Vector2(-6.005f,-1f));
 		Body palo_izq2 = world.createBody(robeBody);
+		bodyForPainting.add(palo_izq2);
 		palo_izq2.createFixture(robeFixture);
 		
 		//-------Palo derecha 4° (Atras del palo 3)----
 		robeBody.position.set(new Vector2(-7f,-.8f));
 		Body palo_izq_atras2 = world.createBody(robeBody);
+		bodyForPainting.add(palo_izq_atras2);
 		palo_izq_atras2.createFixture(robeFixture);
 		
 		Body aasd1 = world.createBody(robeBody);
@@ -283,7 +356,7 @@ public class Stadium implements Screen {
 			
 			ArrayMap<Integer, Body> netLink = new ArrayMap<Integer, Body>();
 			netLink.put(0, palo_a);
-			for(int u = 1; u < 6; u++){
+			for(int u = 1; u < 8; u++){
 				float nPosition_x = start_x > end_x ? (start_x - (cant_x * u)) : (start_x + (cant_x * u));
 				float nPosition_y = start_y > end_y ? (start_y - (cant_y * u)) : (start_y + (cant_y * u));
 				BodyDef b_red = new BodyDef();
@@ -292,8 +365,9 @@ public class Stadium implements Screen {
 				b_red.type = BodyType.DynamicBody;
 				f_red.shape = c_red;
 				//c_red.setPosition(new Vector2(nPosition_x,nPosition_y));
-				c_red.setRadius(.04f);
+				c_red.setRadius(.02f);
 				Body b = world.createBody(b_red);
+				bodyForPainting.add(b);
 				b.createFixture(f_red);
 				netLink.put(u, b);
 			}
@@ -306,7 +380,7 @@ public class Stadium implements Screen {
 					DistanceJointDef n = new DistanceJointDef();
 					n.bodyA = b1;
 					n.bodyB = b2;
-					n.length = .17f;
+					n.length = .09f;
 					world.createJoint(n);
 					
 				}
@@ -315,41 +389,6 @@ public class Stadium implements Screen {
 
 			
 		}
-		
-		
-		/*ArrayMap<Integer, Body> net = new ArrayMap<Integer, Body>();
-		
-		float startPoint 	= Brobe1b.getPosition().x + (robeShape.getRadius() + .1f );
-		float endPoint  	= Brobe2a_1.getPosition().x -  (robeShape.getRadius() + .1f );
-		
-		
-		float distance_1 = endPoint - startPoint;	
-		int aux = 1;
-		
-		for(float f = .0f; f <= distance_1; f += 0.12f ){	 
-			robeBody.position.set(new Vector2(startPoint+f, Brobe2a_1.getPosition().y));
-			robeShape.setRadius(.03f);
-			robeBody.type = BodyType.DynamicBody;
-			Body auxNet_A = world.createBody(robeBody);
-			auxNet_A.createFixture(robeFixture);
-			net.put(aux, auxNet_A);
-			aux++;
-		}
-		
-
-		for(int x = 1; x <= net.size; x++){
-			if( x + 1 < net.size ){ 
-				DistanceJointDef n = new DistanceJointDef();
-				Body bodyA = net.get( x );
-				Body bodyB = net.get( x + 1 );
-				n.bodyA = bodyA;
-				n.bodyB = bodyB;
-				n.length = .12f;
-				n.collideConnected = false;
-				world.createJoint(n);
-			}
-		}
-		*/
 	}
 	
 	@Override
