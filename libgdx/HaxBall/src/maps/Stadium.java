@@ -57,16 +57,11 @@ public class Stadium implements Screen {
 		world.step(Gdx.graphics.getDeltaTime(), VELOCITYITERATIONS, POSITIONITERATIONS);
 		
 		debugRender.render(world, camera.combined);
-		
 	
-
-
-		
 		//soccer image field
 		batch.begin();
 		batch.draw(region, 90, 35, 1450, 730);
 		batch.end();
-		
 		for(Body b: bodyForPainting){
 			renderer.begin(ShapeType.Filled);
 			renderer.setColor(Color.WHITE);
@@ -100,10 +95,12 @@ public class Stadium implements Screen {
 		renderer.circle(0, 0, .7f, 20);
 		renderer.end();
 		
-	
+		//Paint ball.
 		renderer.begin(ShapeType.Filled);
-		renderer.setColor(Color.GREEN);
-		renderer.circle(ball.getBallBody().getPosition().x, ball.getBallBody().getPosition().y, .2f, 20);
+		renderer.setColor(Color.BLACK);
+		renderer.circle(ball.getBallBody().getPosition().x, ball.getBallBody().getPosition().y, .2f, 50);
+		renderer.setColor(.160f,.20f,.20f,.10f);
+		renderer.circle(ball.getBallBody().getPosition().x, ball.getBallBody().getPosition().y, .15f, 50);
 		renderer.end();
 		
 	
@@ -137,7 +134,7 @@ public class Stadium implements Screen {
 	
 		
 		
-		ball = new Ball(new Vector2(0,0), .2f, new CircleShape(), world);
+		ball = new Ball(new Vector2(-2,0), .2f, new CircleShape(), world);
 		player1 = new Player(2, new Vector2(-2, 0), .3f, new CircleShape(),	world, camera.combined);
 		
 		world.setContactListener(new BallContactListener()); 
@@ -380,7 +377,7 @@ public class Stadium implements Screen {
 					DistanceJointDef n = new DistanceJointDef();
 					n.bodyA = b1;
 					n.bodyB = b2;
-					n.length = .09f;
+					n.length = .1f;
 					world.createJoint(n);
 					
 				}

@@ -132,7 +132,6 @@ public class Player extends InputAdapter{
 			setPressKey(Controls.S);
 			return true;
 		case Keys.ESCAPE:
-			playerBodyDef.position.set(0, 0);
 			return true;
 		}
 		return false;
@@ -245,8 +244,10 @@ public class Player extends InputAdapter{
 	public void paintPlayer(){
 		renderer.setProjectionMatrix(camera);
 		renderer.begin(ShapeType.Filled);
-		renderer.setColor(Color.RED);
-		renderer.circle(playerBody.getPosition().x ,playerBody.getPosition().y, playerBody.getFixtureList().get(0).getShape().getRadius(), 20);
+		renderer.setColor(Color.BLACK);
+		renderer.circle(playerBody.getPosition().x ,playerBody.getPosition().y, playerBody.getFixtureList().get(0).getShape().getRadius(), 50);
+		renderer.setColor(.50f,.200f,.255f,.10f);
+		renderer.circle(playerBody.getPosition().x ,playerBody.getPosition().y, playerBody.getFixtureList().get(0).getShape().getRadius()-.55f, 50);
 		renderer.end();
 	}
 
