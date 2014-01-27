@@ -38,22 +38,24 @@ public class Player extends InputAdapter{
 	private boolean contactFlag = false;
 	private Vector2 position;
 	private final int[] controls;
+	private Color color;
+	
 	public enum Controls {
 		U, D, L, R, S 
 	}
 
-	static Map<Controls, Boolean> keys = new HashMap<Controls, Boolean>();
+	public Map<Controls, Boolean> keys = new HashMap<Controls, Boolean>();
 
-	static {
-		keys.put(Controls.U, false);
-		keys.put(Controls.D, false);
-		keys.put(Controls.L, false);
-		keys.put(Controls.R, false);
-		keys.put(Controls.S, false);
-	}
+//	static {
+//		keys.put(Controls.U, false);
+//		keys.put(Controls.D, false);
+//		keys.put(Controls.L, false);
+//		keys.put(Controls.R, false);
+//		keys.put(Controls.S, false);
+//	}
 
 	public Player(float speed, Vector2 position, float size, Shape shape,
-			World world, Matrix4 camera, int[] controls) {
+			World world, Matrix4 camera, int[] controls, Color c) {
 
 		if (shape == null) {
 			playerShape = new CircleShape();
@@ -63,7 +65,7 @@ public class Player extends InputAdapter{
 		}
 		this.controls = controls;
 		this.size = size;
-		
+		this.color = c;
 		playerBodyDef = new BodyDef();
 		playerFixtureDef = new FixtureDef();
 
@@ -76,7 +78,7 @@ public class Player extends InputAdapter{
 
 		playerFixtureDef.restitution = .5f;
 		playerFixtureDef.friction = 1f;
-		playerFixtureDef.density = 5f;
+		playerFixtureDef.density = 3f;
 		playerFixtureDef.isSensor = false;
 		
 		
@@ -86,18 +88,24 @@ public class Player extends InputAdapter{
 
 		playerBody.createFixture(playerFixtureDef);
 
-		playerBody.setUserData("player");
+
+		playerBody.setUserData(this);
+		
 		
 		
 		renderer = new ShapeRenderer();
 		this.camera = camera;
 		
-		
+		keys.put(Controls.U, false);
+		keys.put(Controls.D, false);
+		keys.put(Controls.L, false);
+		keys.put(Controls.R, false);
+		keys.put(Controls.S, false);
 		
 		
 	}
 	
-	public static boolean getAction(Controls s){
+	public boolean getAction(Controls s){
 		return keys.get(s);
 	}
 
@@ -186,8 +194,7 @@ public class Player extends InputAdapter{
 		return false;
 	}
 	
-	public void movePlayer(Player player){
-		if(player == this){
+	public void movePlayer(){
 		for(Entry<Controls, Boolean> entry : keys.entrySet()) {
 		    Controls key = entry.getKey();
 		    Boolean value = entry.getValue();
@@ -239,7 +246,7 @@ public class Player extends InputAdapter{
 				}
 
 			}
-			          
+			this.paintPlayer(this.color);
 			boolean colorFlag = false;
 			//Kick option.
 			if(key == key.S && value){
@@ -267,15 +274,15 @@ public class Player extends InputAdapter{
 			
 			
 		}
-		}
+		
 	}
 	
-	public void paintPlayer(){
+	private void paintPlayer(Color c){
 		renderer.setProjectionMatrix(camera);
 		renderer.begin(ShapeType.Filled);
 		renderer.setColor(Color.BLACK);
 		renderer.circle(playerBody.getPosition().x ,playerBody.getPosition().y, playerBody.getFixtureList().get(0).getShape().getRadius(), 50);
-		renderer.setColor(.50f,.200f,.255f,.10f);
+		renderer.setColor(c);
 		renderer.circle(playerBody.getPosition().x ,playerBody.getPosition().y, playerBody.getFixtureList().get(0).getShape().getRadius()-.55f, 50);
 		renderer.end();
 	}

@@ -1,3 +1,5 @@
 *.class
 *.gwt-log
+*.log
 /.idea/
+/gwt-unitCache/

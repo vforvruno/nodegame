@@ -101,28 +101,28 @@ public class Ball{
 	public void stopBall(){
 		
 		if(ballBody.getLinearVelocity().x > 0){
-			if(ballBody.getLinearVelocity().x > Math.abs(ballBody.getLinearVelocity().x) / 50){
-				ballBody.setLinearVelocity(ballBody.getLinearVelocity().x - Math.abs(ballBody.getLinearVelocity().x) / 50, ballBody.getLinearVelocity().y);
+			if(ballBody.getLinearVelocity().x > Math.abs(ballBody.getLinearVelocity().x) / 100){
+				ballBody.setLinearVelocity(ballBody.getLinearVelocity().x - Math.abs(ballBody.getLinearVelocity().x) / 100, ballBody.getLinearVelocity().y);
 			}else{
 				ballBody.setLinearVelocity(0, ballBody.getLinearVelocity().y);
 			}
 		}else if(ballBody.getLinearVelocity().x < 0){
-			if(ballBody.getLinearVelocity().x + Math.abs(ballBody.getLinearVelocity().x) / 50 > 0){
-				ballBody.setLinearVelocity(ballBody.getLinearVelocity().x + Math.abs(ballBody.getLinearVelocity().x) / 50 , ballBody.getLinearVelocity().y);
+			if(ballBody.getLinearVelocity().x + Math.abs(ballBody.getLinearVelocity().x) / 100 > 0){
+				ballBody.setLinearVelocity(ballBody.getLinearVelocity().x + Math.abs(ballBody.getLinearVelocity().x) / 100 , ballBody.getLinearVelocity().y);
 			}else{
-				ballBody.setLinearVelocity(ballBody.getLinearVelocity().x + Math.abs(ballBody.getLinearVelocity().x) / 50, ballBody.getLinearVelocity().y);
+				ballBody.setLinearVelocity(ballBody.getLinearVelocity().x + Math.abs(ballBody.getLinearVelocity().x) / 100, ballBody.getLinearVelocity().y);
 			}	
 		}
 		
 		if(ballBody.getLinearVelocity().y > 0){
-			if(ballBody.getLinearVelocity().y > ( Math.abs(ballBody.getLinearVelocity().y) / 50 )){
-				ballBody.setLinearVelocity(ballBody.getLinearVelocity().x, ballBody.getLinearVelocity().y - Math.abs(ballBody.getLinearVelocity().y) / 50);
+			if(ballBody.getLinearVelocity().y > ( Math.abs(ballBody.getLinearVelocity().y) / 100 )){
+				ballBody.setLinearVelocity(ballBody.getLinearVelocity().x, ballBody.getLinearVelocity().y - Math.abs(ballBody.getLinearVelocity().y) / 100);
 			}else{
 				ballBody.setLinearVelocity(ballBody.getLinearVelocity().x, 0);
 			}
 		}else if(ballBody.getLinearVelocity().y < 0){
-			if(ballBody.getLinearVelocity().y + ( Math.abs(ballBody.getLinearVelocity().y) / 50 ) < 0){
-				ballBody.setLinearVelocity(ballBody.getLinearVelocity().x, ballBody.getLinearVelocity().y + ( Math.abs(ballBody.getLinearVelocity().y) / 50 ));
+			if(ballBody.getLinearVelocity().y + ( Math.abs(ballBody.getLinearVelocity().y) / 100 ) < 0){
+				ballBody.setLinearVelocity(ballBody.getLinearVelocity().x, ballBody.getLinearVelocity().y + ( Math.abs(ballBody.getLinearVelocity().y) / 100 ));
 			}else{
 				ballBody.setLinearVelocity(ballBody.getLinearVelocity().x, 0);
 			}	

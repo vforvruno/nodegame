@@ -105,11 +105,9 @@ public class Stadium implements Screen {
 		renderer.end();
 		
 	
-		
-		player1.paintPlayer();
-		player1.movePlayer(player1);
-		player2.paintPlayer();
-		player2.movePlayer(player2);
+	
+		player1.movePlayer();
+		player2.movePlayer();
 		ball.stopBall();
 	}
 
@@ -138,16 +136,17 @@ public class Stadium implements Screen {
 		ball = new Ball(new Vector2(-2,0), .2f, new CircleShape(), world);
 		
 		//Controls Declaration for player1, must be in order : up,down,left, right.
-		int cPlayer1[] = {Keys.W, Keys.S, Keys.A,Keys.D, Keys.ALT_LEFT};
-		player1 = new Player(2, new Vector2(-2, 0), .3f, new CircleShape(),	world, camera.combined, cPlayer1);
+		int cPlayer1[] = {Keys.UP, Keys.DOWN, Keys.LEFT,Keys.RIGHT, Keys.SPACE};
+		player1 = new Player(2, new Vector2(2, 0), .3f, new CircleShape(),	world, camera.combined, cPlayer1, new Color(.50f,.200f,.255f,.10f));
 		//Second player
-		int cPlayer2[] = {Keys.UP, Keys.DOWN, Keys.LEFT,Keys.RIGHT, Keys.ALT_RIGHT};
-		player2 = new Player(2, new Vector2(2, 0), .3f, new CircleShape(),	world, camera.combined, cPlayer2);
+		int cPlayer2[] = {Keys.W, Keys.S, Keys.A,Keys.D, Keys.ALT_LEFT};
+		player2 = new Player(2, new Vector2(-2, 0), .3f, new CircleShape(),	world, camera.combined, cPlayer2, new Color(.255f,.200f,.50f,.10f));
 		
 		world.setContactListener(new BallContactListener()); 
 		
 		Gdx.input.setInputProcessor(new InputMultiplexer(
-		player1,player2,
+		player1, player2,
+		
 		new com.me.hax.InputController() {
 			@Override
 			public boolean keyDown(int keycode) {
