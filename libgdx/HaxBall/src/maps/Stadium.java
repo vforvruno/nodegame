@@ -1,6 +1,7 @@
 package maps;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
@@ -37,13 +38,13 @@ public class Stadium implements Screen {
 	private OrthographicCamera camera;
 	private final int VELOCITYITERATIONS = 8;
 	private final int POSITIONITERATIONS = 3;
-	private Player player1;
+	private Player player1, player2;
 	private ShapeRenderer renderer;
 	private TextureRegion region;
 	private Ball ball;
 	SpriteBatch batch = new SpriteBatch();
 	private Texture texture;
-	private Array<Body> bodyForPainting = new Array();
+	private Array<Body> bodyForPainting = new Array<Body>();
 	
 	@Override
 	public void render(float delta) {
@@ -106,7 +107,10 @@ public class Stadium implements Screen {
 	
 		
 		player1.paintPlayer();
-		player1.movePlayer();
+		player1.movePlayer(player1);
+		player2.paintPlayer();
+		player2.movePlayer(player2);
+		ball.stopBall();
 	}
 
 	@Override
@@ -131,16 +135,19 @@ public class Stadium implements Screen {
 		region = new TextureRegion(texture, 0, 0, texture.getWidth(), texture.getHeight());
 		world = new World(new Vector2(0, 0), true);
 		
-	
-		
-		
 		ball = new Ball(new Vector2(-2,0), .2f, new CircleShape(), world);
-		player1 = new Player(2, new Vector2(-2, 0), .3f, new CircleShape(),	world, camera.combined);
+		
+		//Controls Declaration for player1, must be in order : up,down,left, right.
+		int cPlayer1[] = {Keys.W, Keys.S, Keys.A,Keys.D, Keys.ALT_LEFT};
+		player1 = new Player(2, new Vector2(-2, 0), .3f, new CircleShape(),	world, camera.combined, cPlayer1);
+		//Second player
+		int cPlayer2[] = {Keys.UP, Keys.DOWN, Keys.LEFT,Keys.RIGHT, Keys.ALT_RIGHT};
+		player2 = new Player(2, new Vector2(2, 0), .3f, new CircleShape(),	world, camera.combined, cPlayer2);
 		
 		world.setContactListener(new BallContactListener()); 
 		
 		Gdx.input.setInputProcessor(new InputMultiplexer(
-		player1,
+		player1,player2,
 		new com.me.hax.InputController() {
 			@Override
 			public boolean keyDown(int keycode) {

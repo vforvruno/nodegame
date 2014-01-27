@@ -32,12 +32,12 @@ public class Player extends InputAdapter{
 	private BodyDef playerBodyDef;
 	private FixtureDef playerFixtureDef;
 	private Shape playerShape;
-	private float maxSpeed = 5f, speed = .1f, maxSpeedBall = 8f;
+	private float maxSpeed = 2f, speed = .1f;
 	private ShapeRenderer renderer;
 	private float size;
 	private boolean contactFlag = false;
 	private Vector2 position;
-	
+	private final int[] controls;
 	public enum Controls {
 		U, D, L, R, S 
 	}
@@ -53,7 +53,7 @@ public class Player extends InputAdapter{
 	}
 
 	public Player(float speed, Vector2 position, float size, Shape shape,
-			World world, Matrix4 camera) {
+			World world, Matrix4 camera, int[] controls) {
 
 		if (shape == null) {
 			playerShape = new CircleShape();
@@ -61,7 +61,7 @@ public class Player extends InputAdapter{
 		} else {
 			playerShape = shape;
 		}
-
+		this.controls = controls;
 		this.size = size;
 		
 		playerBodyDef = new BodyDef();
@@ -115,23 +115,36 @@ public class Player extends InputAdapter{
 	
 	@Override
 	public boolean keyDown(int keycode) {
-		switch (keycode) {
-		case Keys.UP:
+		
+		int u = controls[0];
+		int d = controls[1];
+		int l = controls[2];
+		int r = controls[3];
+		int s = controls[4];
+		
+		if(keycode == u)
+		{
 			setPressKey(Controls.U);
 			return true;
-		case Keys.DOWN:
+		}
+		else if (keycode == d)
+		{
 			setPressKey(Controls.D);
 			return true;
-		case Keys.LEFT:
+		}
+		else if (keycode == l)
+		{
 			setPressKey(Controls.L);
 			return true;
-		case Keys.RIGHT:
+		}
+		else if (keycode == r)
+		{
 			setPressKey(Controls.R);
 			return true;
-		case Keys.SPACE:
+		}
+		else if (keycode == s)
+		{
 			setPressKey(Controls.S);
-			return true;
-		case Keys.ESCAPE:
 			return true;
 		}
 		return false;
@@ -139,27 +152,42 @@ public class Player extends InputAdapter{
 
 	@Override
 	public boolean keyUp(int keycode) {
-		switch (keycode) {
-		case Keys.UP:
+		int u = controls[0];
+		int d = controls[1];
+		int l = controls[2];
+		int r = controls[3];
+		int s = controls[4];
+		
+		if(keycode == u)
+		{
 			setPressRelease(Controls.U);
 			return true;
-		case Keys.DOWN:
+		}
+		else if (keycode == d)
+		{
 			setPressRelease(Controls.D);
 			return true;
-		case Keys.LEFT:
+		}
+		else if (keycode == l)
+		{
 			setPressRelease(Controls.L);
 			return true;
-		case Keys.RIGHT:
+		}
+		else if (keycode == r)
+		{
 			setPressRelease(Controls.R);
 			return true;
-		case Keys.SPACE:
+		}
+		else if (keycode == s)
+		{
 			setPressRelease(Controls.S);
 			return true;
 		}
 		return false;
 	}
 	
-	public void movePlayer(){
+	public void movePlayer(Player player){
+		if(player == this){
 		for(Entry<Controls, Boolean> entry : keys.entrySet()) {
 		    Controls key = entry.getKey();
 		    Boolean value = entry.getValue();
@@ -238,6 +266,7 @@ public class Player extends InputAdapter{
 			}
 			
 			
+		}
 		}
 	}
 	
