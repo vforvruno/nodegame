@@ -2,6 +2,18 @@
 jQuery(function($){
     'use strict';
 
+    var b2Vec2 = Box2D.Common.Math.b2Vec2;
+    var b2BodyDef = Box2D.Dynamics.b2BodyDef;
+    var b2Body = Box2D.Dynamics.b2Body;
+    var b2FixtureDef = Box2D.Dynamics.b2FixtureDef;
+    var b2Fixture = Box2D.Dynamics.b2Fixture;
+    var b2World = Box2D.Dynamics.b2World;
+    var b2MassData = Box2D.Collision.Shapes.b2MassData;
+    var b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape;
+    var b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
+    var b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
+
+
     /**
      * All the code relevant to Socket.IO is collected in the IO namespace.
      *
@@ -80,12 +92,19 @@ jQuery(function($){
             console.log('Running main loop');
             // Create the canvas
             var $canvas = $("<canvas></canvas>");
-            App.ctx = $canvas[0].getContext("2d");
             $canvas[0].width = 512;
             $canvas[0].height = 480;
+            $canvas[0].id = "gameCanvas";
             App.$gameArea.html($canvas[0]);
 
-            setInterval(App.Player.run, 1); // Execute as fast as possible
+            App.stage = new createjs.Stage("gameCanvas");
+
+            App.world = new b2World(new b2Vec2(0, 0) //gravity
+                , false); //allow to sleep
+
+            createjs.Ticker.setFPS(App.FPS);
+            createjs.Ticker.addEventListener("tick", App.Player.tick);
+            createjs.Ticker.useRAF = true;
         },
 
         newPlayerPosition : function (name, x, y) {
@@ -163,6 +182,10 @@ jQuery(function($){
 
         players: [],
 
+        FPS: 30,
+
+        SCALE: 30,
+
         /* *************************************
          * Setup *
          * *********************************** */
@@ -197,7 +220,8 @@ jQuery(function($){
         cacheElements: function () {
             App.$doc = $(document);
 
-            App.ctx = '';
+            App.world = '';
+            App.stage = '';
 
             // Templates
             App.$gameArea = $('#gameArea');
@@ -457,9 +481,6 @@ jQuery(function($){
          ***************************** */
 
         Player : {
-
-            then: Date.now(),
-
             /**
              * A reference to the socket ID of the Host
              */
@@ -597,13 +618,15 @@ jQuery(function($){
             },
 
 
-            run : function() {
-                var now = Date.now();
-                var delta = now - App.Player.then;
-
-                App.Player.moveSelf(delta / 1000);
-
-                App.Player.then = now;
+            tick : function(evt) {
+                App.Player.moveSelf(evt.delta / 1000);
+                for(var name in App.players) {
+                    App.players[name].skin.x = App.players[name].body.GetPosition().x * App.SCALE;
+                    App.players[name].skin.y = App.players[name].body.GetPosition().y * App.SCALE;
+                }
+                App.world.Step(evt.delta / 1000, 10, 10);
+                App.world.DrawDebugData();
+                App.stage.update();
             },
 
 
@@ -635,37 +658,63 @@ jQuery(function($){
                 console.log('Opponent: ' + name + ' moved to: x:' + x + ' y:' + y);
 
                 if(App.players[name] == undefined){
+                    var diameter = 20;
                     App.players[name] = {};
-                }
 
-                App.players[name].x = x;
-                App.players[name].y = y;
-                for(var name in App.players){
-                    x = App.players[name].x;
-                    y = App.players[name].y;
-
-                    var context = App.ctx;
-
-                    var radius = 20;
-                    context.beginPath();
-                    context.arc(x, y, radius, 0, 2 * Math.PI, false);
-                    context.closePath();
+                    //easeljs
+                    var skin = new createjs.Shape();
                     if(name === App.Player.myName){
-                        context.fillStyle = 'blue';
+                        skin.graphics.beginFill("blue").drawCircle(0, 0, diameter);
                     }
                     else {
-                        context.fillStyle = 'red';
+                        skin.graphics.beginFill("red").drawCircle(0, 0, diameter);
                     }
-                    context.lineWidth = 5;
-                    context.strokeStyle = '#003300';
-                    context.stroke();
-                    context.fill();
+                    skin.x = 0;
+                    skin.y = 0;
+                    App.stage.addChild(skin);
 
-                    context.fillStyle = 'green';
-                    context.font = "bold 100px Arial";
-                    context.textBaseline = "top";
-                    context.fillText(name, x , y);
+                    //box2d
+                    var fixDef = new b2FixtureDef;
+                    fixDef.density = 1.0;
+                    fixDef.friction = 0.5;
+                    fixDef.restitution = 0.2;
+                    fixDef.shape = new b2CircleShape(diameter * 2 / App.SCALE);
+
+                    var bodyDef = new b2BodyDef;
+                    bodyDef.type = b2Body.b2_dynamicBody;
+                    // positions the center of the object (not upper left!)
+                    bodyDef.position.x = diameter/2 / App.SCALE;
+                    bodyDef.position.y = diameter/2 / App.SCALE;
+
+                    var body = App.world.CreateBody(bodyDef);
+                    body.CreateFixture(fixDef);
+
+                    var actor = new function(body, skin) {
+                        this.body = body;
+                        this.skin = skin;
+                        this.update = function() { // translate box2d positions to pixels
+                            this.skin.x = this.body.GetPosition().x * App.SCALE;
+                            this.skin.y = this.body.GetPosition().y * App.SCALE;
+                        }
+                    };
+
+                    body.SetUserData(actor);  // set actor as userdata of body so we can get at it later if we need to
+
+
+                    // debug draw:
+                    var debugDraw = new b2DebugDraw;
+                    debugDraw.SetSprite(App.stage.canvas.getContext("2d"));
+                    debugDraw.SetDrawScale(App.SCALE);
+                    debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+                    App.world.SetDebugDraw(debugDraw);
+
+                    App.players[name].skin = skin;
+                    App.players[name].body = body;
+                    App.players[name].actor = actor;
                 }
+
+                App.players[name].body.SetPositionAndAngle(new b2Vec2(x / App.SCALE,y / App.SCALE));
+                //App.players[name].body.GetUserData().skin.update();
             },
 
 
